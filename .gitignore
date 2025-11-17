@@ -1,2 +1,65 @@
+############################
+# Python Virtual Environment
+############################
 env/
 venv/
+.venv/
+ENV/
+VENV/
+
+############################
+# Python Cache & Bytecode
+############################
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+
+############################
+# Environment Variables / Secrets
+############################
+.env
+*.env
+
+############################
+# Output Files (generated)
+############################
+notes.html
+notes.md
+notes.pdf
+*.html
+*.pdf
+
+############################
+# Streamlit Cache
+############################
+.streamlit/
+*/__pycache__/
+
+############################
+# System / OS Junk Files
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# IDE / Editor Files
+############################
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+
+############################
+# Logs
+############################
+*.log
+
+############################
+# Node modules (if you ever use JS)
+############################
+node_modules/
