@@ -5,4 +5,3 @@ python-dotenv==1.0.1
 markdown==3.6
 protobuf==4.25.3
 requests==2.31.0
-joblib
