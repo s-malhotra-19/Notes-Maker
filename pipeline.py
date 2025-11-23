@@ -6,9 +6,7 @@ import markdown
 import os
 from dotenv import load_dotenv
 
-# ---------------------------------------------------------
-# Extract YouTube Video ID
-# ---------------------------------------------------------
+#extracting the yt id from the url provided by the user
 def extract_video_id(url):
     match = re.search(r"(?:v=|\/)([0-9A-Za-z_-]{11})", url)
     if match:
@@ -16,24 +14,22 @@ def extract_video_id(url):
     else:
         raise ValueError("Invalid YouTube URL")
 
-# ---------------------------------------------------------
-# Fetch transcript using YouTube Data API (CLOUD SAFE)
-# ---------------------------------------------------------
+#using the youtube data api to fetch the captions
 def fetch_transcript_youtube_api(video_id, api_key):
-    # 1. Get caption track list
+    # Get caption track list
     list_url = (
         f"https://www.googleapis.com/youtube/v3/captions?"
         f"videoId={video_id}&part=id&key={api_key}"
     )
     list_resp = requests.get(list_url)
-    list_json = list_resp.json()
+    list_json = list_resp.json()#storing the redsponse in a json file{dictionary format}
 
     if "items" not in list_json or len(list_json["items"]) == 0:
         raise ValueError("No captions available for this video.")
 
     caption_id = list_json["items"][0]["id"]
 
-    # 2. Download caption file
+    #  Download caption file
     download_url = (
         f"https://www.googleapis.com/youtube/v3/captions/{caption_id}"
         f"?tfmt=ttml&key={api_key}"
@@ -41,9 +37,9 @@ def fetch_transcript_youtube_api(video_id, api_key):
     dl_resp = requests.get(download_url)
     raw_text = dl_resp.text.strip()
 
-    # 🔥 3. CHECK IF THE RESPONSE IS XML (TTML)
+    # CHECK IF THE RESPONSE IS XML (TTML)
     if raw_text.startswith("<?xml") or raw_text.startswith("<tt"):
-        # --- Parse as XML ---
+        # Parse as XML 
         root = ET.fromstring(raw_text)
         text_segments = []
         for node in root.iter():
@@ -54,7 +50,7 @@ def fetch_transcript_youtube_api(video_id, api_key):
         return "\n".join(text_segments)
 
     else:
-        # --- Parse as Plain Text (SRT, VTT, etc.) ---
+        # Parse as Plain Text (SRT, VTT)
         lines = raw_text.splitlines()
         cleaned = []
         for line in lines:
@@ -68,18 +64,16 @@ def fetch_transcript_youtube_api(video_id, api_key):
                 cleaned.append(line)
         return "\n".join(cleaned)
 
-# ---------------------------------------------------------
-# Convert markdown → HTML file
-# ---------------------------------------------------------
+# Convert markdown HTML file
+
 def markdown_to_html(md_text, output_file="notes.html"):
     html = markdown.markdown(md_text, extensions=["fenced_code", "tables", "nl2br"])
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(html)
     return output_file
 
-# ---------------------------------------------------------
 # MAIN FUNCTION: Generate Notes
-# ---------------------------------------------------------
+
 def generate_notes(url):
     # Load API keys
     load_dotenv()
@@ -94,10 +88,10 @@ def generate_notes(url):
     # Extract video ID
     video_id = extract_video_id(url)
 
-    # Fetch clean transcript (Cloud SAFE)
+    # Fetch clean transcript 
     transcript = fetch_transcript_youtube_api(video_id, yt_api_key)
 
-    # Configure Gemini
+    # Gemini
     genai.configure(api_key=gemini_key)
     llm = genai.GenerativeModel("gemini-2.5-flash")
 
